@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIO 信息管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* 登录页面样式 */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 400px;
+        }
+        
+        .login-box h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        /* 主页面样式 */
+        .main-container {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #666;
+        }
+        
+        .logout-btn {
+            padding: 8px 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            min-height: calc(100vh - 70px);
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 15px 30px;
+            color: #ecf0f1;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background: #34495e;
+        }
+        
+        .menu-item.active {
+            background: #34495e;
+            border-left-color: #667eea;
+        }
+        
+        .content-wrapper {
+            display: flex;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f6fa;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .page {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .page h2 {
+            margin-bottom: 25px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .edit-btn {
+            background: #3498db;
+            color: white;
+        }
+        
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .add-btn {
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            color: #333;
+        }
+        
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        /* 搜索区域 */
+        .search-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-area input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .search-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 导入区域 */
+        .import-area {
+            border: 2px dashed #ddd;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        
+        .import-area input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .editable-table input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .toolbar button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .toolbar .add-row-btn {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .toolbar .save-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .toolbar .clear-btn {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        /* 大模型配置样式 */
+        .llm-config-form {
+            max-width: 600px;
+        }
+        
+        .llm-config-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .llm-config-form select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .llm-config-form input[type="range"] {
+            width: 100%;
+        }
+        
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .test-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .test-result.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .test-result.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .import-options {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .import-options label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .import-options input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .import-method-info {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .import-method-info.llm {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .import-method-info.traditional {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        
+        /* CIO维护页面样式 */
+        .batch-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            align-items: center;
+        }
+        
+        .batch-toolbar button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .batch-select-all {
+            background: #667eea;
+            color: white;
+        }
+        
+        .batch-invert {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .batch-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .batch-delete:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .selected-count {
+            margin-left: auto;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .data-table th:first-child,
+        .data-table td:first-child {
+            width: 50px;
+            text-align: center;
+        }
+        
+        .data-table input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .data-table tr.selected {
+            background: #e3f2fd !important;
+        }
+        
+        .confirm-modal-content {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .confirm-modal-content h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        
+        .confirm-modal-content p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .confirm-buttons button {
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .confirm-yes {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .confirm-no {
+            background: #6c757d;
+            color: white;
+        }
+        
+        /* 导入进度条样式 */
+        .import-progress {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .import-success {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 8px;
+            color: #155724;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .success-icon {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        /* 表格滚动容器 */
+        .table-scroll-container {
+            overflow-x: auto;
+            max-width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        .table-scroll-container .data-table {
+            min-width: 1200px;
+            margin: 0;
+        }
+        
+        .table-scroll-container .data-table th,
+        .table-scroll-container .data-table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+        
+        .table-scroll-container .data-table input {
+            min-width: 100%;
+        }
+        
+        /* 去重选项样式 */
+        .upsert-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .upsert-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        
+        /* 查询结果信息样式 */
+        .query-result-info {
+            margin: 15px 0;
+            padding: 10px 15px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            color: #1565c0;
+            font-size: 14px;
+        }
+        
+        .query-result-info strong {
+            color: #0d47a1;
+            font-size: 16px;
+        }
+        
+        /* 导出下拉菜单样式 */
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .export-btn {
+            background: #27ae60 !important;
+        }
+        
+        .export-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            min-width: 140px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 100;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .export-menu.show {
+            display: block;
+        }
+        
+        .export-menu a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .export-menu a:hover {
+            background: #f5f5f5;
+        }
+        
+        .export-menu a:first-child {
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <h1>CIO 信息管理系统</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>账号</label>
+                    <input type="text" id="username" placeholder="请输入账号" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="btn">登 录</button>
+                <div class="error-message" id="errorMsg"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主页面 -->
+    <div class="main-container" id="mainPage">
+        <div class="header">
+            <h1>CIO 信息管理系统</h1>
+            <div class="user-info">
+                <span>欢迎，<strong id="currentUser">管理员</strong></span>
+                <button class="logout-btn" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+        
+        <div class="content-wrapper">
+            <div class="sidebar">
+                <div class="menu-item active" onclick="showPage('userPage', this)">
+                    用户维护
+                </div>
+                <div class="menu-item" onclick="showPage('cioOrganizePage', this)">
+                    CIO整理
+                </div>
+                <div class="menu-item" onclick="showPage('cioQueryPage', this)">
+                    CIO查询
+                </div>
+                <div class="menu-item" onclick="showPage('cioMaintainPage', this)">
+                    CIO数据库维护
+                </div>
+                <div class="menu-item" onclick="showPage('llmConfigPage', this)">
+                    大模型配置
+                </div>
+            </div>
+            
+            <div class="content">
+                <!-- 用户维护页面 -->
+                <div class="page active" id="userPage">
+                    <h2>用户维护</h2>
+                    <button class="add-btn" onclick="openUserModal()">+ 新增用户</button>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户编码</th>
+                                <th>姓名</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
+                
+                <!-- CIO整理页面 -->
+                <div class="page" id="cioOrganizePage">
+                    <h2>CIO整理</h2>
+                    
+                    <!-- 导入进度条 -->
+                    <div class="import-progress" id="importProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">正在导入...</div>
+                    </div>
+                    
+                    <!-- 导入成功提示 -->
+                    <div class="import-success" id="importSuccess" style="display: none;">
+                        <span class="success-icon">✓</span>
+                        <span id="importSuccessText">导入成功</span>
+                    </div>
+                    
+                    <div class="import-area">
+                        <input type="file" id="importFile" accept=".xlsx,.xls,.csv,.txt" onchange="handleFileImport(event)">
+                        <label for="importFile" class="file-label">选择文件导入</label>
+                        <p>支持 Excel (.xlsx, .xls)、CSV、TXT 格式</p>
+                    </div>
+                    
+                    <div class="import-options">
+                        <label>
+                            <input type="checkbox" id="useLLM" checked>
+                            <span>使用大模型智能识别字段（推荐：可自动识别各种格式的文件）</span>
+                        </label>
+                        <div id="importMethodInfo" class="import-method-info llm">
+                            将使用大模型智能识别文件中的姓名、单位、手机号等字段
+                        </div>
+                    </div>
+                    
+                    <div class="toolbar">
+                        <button class="add-row-btn" onclick="addEmptyRow()">+ 添加行</button>
+                        <button class="save-btn" onclick="saveImportData()">保存到数据库</button>
+                        <button class="clear-btn" onclick="clearImportData()">清空</button>
+                        <label class="upsert-option" style="margin-left: auto;">
+                            <input type="checkbox" id="upsertMode" checked>
+                            <span>姓名+手机相同则更新</span>
+                        </label>
+                    </div>
+                    
+                    <div class="table-scroll-container">
+                        <table class="data-table editable-table">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 80px;">姓名</th>
+                                    <th style="min-width: 150px;">单位名称</th>
+                                    <th style="min-width: 120px;">手机号</th>
+                                    <th style="min-width: 180px;">邮箱</th>
+                                    <th style="min-width: 200px;">单位全称</th>
+                                    <th style="min-width: 100px;">职位</th>
+                                    <th style="min-width: 60px;">性别</th>
+                                    <th style="min-width: 250px;">家庭地址</th>
+                                    <th style="min-width: 80px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="importTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- CIO查询页面 -->
+                <div class="page" id="cioQueryPage">
+                    <h2>CIO查询</h2>
+                    <div class="search-area">
+                        <input type="text" id="searchName" placeholder="姓名">
+                        <input type="text" id="searchUnit" placeholder="单位名称">
+                        <input type="text" id="searchPhone" placeholder="手机号">
+                        <input type="text" id="searchFullUnit" placeholder="单位全称">
+                        <button class="search-btn" onclick="searchCio()">查询</button>
+                        <button class="search-btn" onclick="resetSearch()" style="background: #95a5a6;">重置</button>
+                        <div class="export-dropdown">
+                            <button class="search-btn export-btn" onclick="toggleExportMenu()">导出Excel ▼</button>
+                            <div class="export-menu" id="exportMenu">
+                                <a href="#" onclick="exportCioData('xlsx')">导出为 .xlsx</a>
+                                <a href="#" onclick="exportCioData('xls')">导出为 .xls</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="query-result-info" id="queryResultInfo" style="display: none;">
+                        共查询到 <strong id="totalRecords">0</strong> 条符合条件的记录
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>姓名</th>
+                                <th>单位名称</th>
+                                <th>手机号</th>
+                                <th>邮箱</th>
+                                <th>单位全称</th>
+                                <th>职位</th>
+                                <th>性别</th>
+                                <th>家庭地址</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cioTableBody"></tbody>
+                    </table>
+                    
+                    <div class="pagination" id="pagination"></div>
+                </div>
+                
+                <!-- CIO数据库维护页面 -->
+                <div class="page" id="cioMaintainPage">
+                    <h2>CIO数据库维护</h2>
+                    
+                    <div class="search-area">
+                        <input type="text" id="maintainSearchName" placeholder="姓名">
+                        <input type="text" id="maintainSearchUnit" placeholder="单位名称">
+                        <input type="text" id="maintainSearchPhone" placeholder="手机号">
+                        <input type="text" id="maintainSearchFullUnit" placeholder="单位全称">
+                        <button class="search-btn" onclick="searchCioForMaintain()">查询</button>
+                        <button class="search-btn" onclick="resetMaintainSearch()" style="background: #95a5a6;">重置</button>
+                    </div>
+                    
+                    <div class="batch-toolbar">
+                        <button class="batch-select-all" onclick="selectAllRows()">全选</button>
+                        <button class="batch-invert" onclick="invertSelection()">反选</button>
+                        <button class="batch-delete" id="batchDeleteBtn" onclick="confirmBatchDelete()" disabled>批量删除</button>
+                        <button class="add-btn" onclick="openAddCioModal()" style="margin: 0;">+ 新增CIO</button>
+                        <span class="selected-count" id="selectedCount">已选择 0 条</span>
+                    </div>
+                    
+                    <table class="data-table" id="maintainTable">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="headerCheckbox" onchange="toggleHeaderCheckbox()"></th>
+                                <th>ID</th>
+                                <th>姓名</th>
+                                <th>单位名称</th>
+                                <th>手机号</th>
+                                <th>邮箱</th>
+                                <th>单位全称</th>
+                                <th>职位</th>
+                                <th>性别</th>
+                                <th>家庭地址</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cioMaintainTableBody"></tbody>
+                    </table>
+                    
+                    <div class="pagination" id="maintainPagination"></div>
+                </div>
+                
+                <!-- 大模型配置页面 -->
+                <div class="page" id="llmConfigPage">
+                    <h2>大模型配置</h2>
+                    <div class="llm-config-form">
+                        <form id="llmConfigForm">
+                            <div class="form-group">
+                                <label>提供商</label>
+                                <select id="llmProvider" onchange="onProviderChange()">
+                                    <option value="openai">OpenAI</option>
+                                    <option value="azure">Azure OpenAI</option>
+                                    <option value="claude">Claude (Anthropic)</option>
+                                    <option value="custom">自定义/OpenAI兼容</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>API密钥</label>
+                                <input type="password" id="llmApiKey" placeholder="输入API密钥">
+                                <small style="color: #999;">已配置的密钥会显示为 ******</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>API Base URL（可选）</label>
+                                <input type="text" id="llmApiBase" placeholder="例如: https://api.openai.com/v1">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>模型</label>
+                                <select id="llmModel">
+                                    <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                                    <option value="gpt-4">gpt-4</option>
+                                    <option value="gpt-4-turbo">gpt-4-turbo</option>
+                                    <option value="gpt-4o">gpt-4o</option>
+                                    <option value="gpt-5.4">gpt-5.4</option>
+                                </select>
+                                <input type="text" id="llmModelCustom" placeholder="输入自定义模型名称" style="display:none; margin-top:10px;">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Temperature <span class="range-value" id="tempValue">0.3</span></label>
+                                <input type="range" id="llmTemperature" min="0" max="1" step="0.1" value="0.3" oninput="document.getElementById('tempValue').textContent = this.value">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Max Tokens</label>
+                                <input type="number" id="llmMaxTokens" value="2000" min="100" max="8000">
+                            </div>
+                            
+                            <button type="submit" class="btn" style="margin-bottom: 10px;">保存配置</button>
+                            <button type="button" class="btn" onclick="testLLMConnection()" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">测试连接</button>
+                            
+                            <div id="testResult"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户编辑模态框 -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">新增用户</h3>
+                <span class="close-btn" onclick="closeUserModal()">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label>用户编码</label>
+                    <input type="text" id="userCode" required>
+                </div>
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label>密码 <small id="pwdHint">（不填则不修改）</small></label>
+                    <input type="password" id="userPassword">
+                </div>
+                <button type="submit" class="btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CIO编辑模态框 -->
+    <div class="modal" id="cioModal">
+        <div class="modal-content" style="width: 700px;">
+            <div class="modal-header">
+                <h3 id="cioModalTitle">编辑CIO信息</h3>
+                <span class="close-btn" onclick="closeCioModal()">&times;</span>
+            </div>
+            <form id="cioForm">
+                <input type="hidden" id="cioId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>姓名</label>
+                        <input type="text" id="cioName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <input type="text" id="cioGender" placeholder="男/女">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>单位名称</label>
+                        <input type="text" id="cioUnitName">
+                    </div>
+                    <div class="form-group">
+                        <label>单位全称</label>
+                        <input type="text" id="cioUnitFullName">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>手机号</label>
+                        <input type="text" id="cioPhone">
+                    </div>
+                    <div class="form-group">
+                        <label>邮箱</label>
+                        <input type="email" id="cioEmail">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>职位</label>
+                    <input type="text" id="cioPosition">
+                </div>
+                <div class="form-group">
+                    <label>家庭地址</label>
+                    <input type="text" id="cioHomeAddress">
+                </div>
+                <button type="submit" class="btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 新增CIO模态框 -->
+    <div class="modal" id="addCioModal">
+        <div class="modal-content" style="width: 700px;">
+            <div class="modal-header">
+                <h3>新增CIO信息</h3>
+                <span class="close-btn" onclick="closeAddCioModal()">&times;</span>
+            </div>
+            <form id="addCioForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>姓名 *</label>
+                        <input type="text" id="addCioName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <input type="text" id="addCioGender" placeholder="男/女">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>单位名称</label>
+                        <input type="text" id="addCioUnitName">
+                    </div>
+                    <div class="form-group">
+                        <label>单位全称</label>
+                        <input type="text" id="addCioUnitFullName">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>手机号</label>
+                        <input type="text" id="addCioPhone">
+                    </div>
+                    <div class="form-group">
+                        <label>邮箱</label>
+                        <input type="email" id="addCioEmail">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>职位</label>
+                    <input type="text" id="addCioPosition">
+                </div>
+                <div class="form-group">
+                    <label>家庭地址</label>
+                    <input type="text" id="addCioHomeAddress">
+                </div>
+                <button type="submit" class="btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div class="modal" id="confirmDeleteModal">
+        <div class="modal-content" style="width: 400px;">
+            <div class="confirm-modal-content">
+                <h3>⚠️ 确认删除</h3>
+                <p id="confirmDeleteMsg">确定要删除选中的数据吗？<br>此操作不可恢复！</p>
+                <div class="confirm-buttons">
+                    <button class="confirm-yes" onclick="executeBatchDelete()">确定删除</button>
+                    <button class="confirm-no" onclick="closeConfirmDeleteModal()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+
+# 数据库文件（包含业务数据，不入库）
+*.db
+*.sqlite3
+
+# 业务数据文件（含个人信息，禁止入库）
+*.xlsx
+*.xls
+*.csv
+
+# 但保留依赖声明文件
+!requirements.txt
+
+# Qoder IDE
+.qoder/
+
+# 临时文件
+*.tmp
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+.qoder/
+*.swp
+*.swo
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 打包产物
+*.spec
+app.ico
